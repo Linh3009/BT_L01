@@ -5,11 +5,9 @@ import validation.StudentValidate;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
         ManagerStudent managerStudent = new ManagerStudent();
         StudentValidate studentValidate = new StudentValidate();
         File fileStudent = new File("D:\\BT L0-1 ArrayList\\src\\file_txt\\fileStudent.txt");
@@ -40,8 +38,10 @@ public class Main {
                     managerStudent.displayLevelSort(students);
                     break;
                 case 7:
+                    managerStudent.showGpa(students);
                     break;
                 case 8:
+                    managerStudent.showStudentByLevel(students);
                     break;
                 case 9:
                     return;

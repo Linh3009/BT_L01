@@ -6,7 +6,6 @@ import model.Person;
 import model.Student;
 import validation.StudentValidate;
 
-import javax.swing.event.ListSelectionListener;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -17,11 +16,12 @@ import java.util.*;
 public class ManagerStudent {
     Scanner scanner = new Scanner(System.in);
     File fileStudent = new File("D:\\BT L0-1 ArrayList\\src\\file_txt\\fileStudent.txt");
-    ReadAndWrite<Student>studentReadAndWrite = new ReadAndWrite<>();
+    ReadAndWrite<Student> studentReadAndWrite = new ReadAndWrite<>();
     ArrayList<Student> students = studentReadAndWrite.read(fileStudent);
+    StudentValidate studentValidate = new StudentValidate();
 
     public ManagerStudent() {
-        if (!fileStudent.exists()){
+        if (!fileStudent.exists()) {
             try {
                 fileStudent.createNewFile();
             } catch (IOException e) {
@@ -140,9 +140,17 @@ public class ManagerStudent {
         String keyword = "OCT";
         int randomNumber = new Random().nextInt(1000000);
         String studentId = keyword + String.format("%07d", randomNumber);
-        if (StudentValidate.checkStudentId(studentId)) {
-            return studentId;
-        } else return randomStudentId();
+        String studentId1 = null;
+        for (int i = 0; i < students.size(); i++) {
+            if (students.get(i).getStudentId().equals(studentId)) {
+                return randomStudentId();
+            } else if (StudentValidate.checkStudentId(studentId)) {
+                studentId1 = studentId;
+            } else {
+                return randomStudentId();
+            }
+        }
+        return studentId1;
     }
 
     public String inputSchool() {
@@ -219,7 +227,7 @@ public class ManagerStudent {
         Person.saveIdCount(Person.idCount, "D:/BT L0-1 ArrayList/src/file_txt/idCount.txt");
         student.updateLevel();
         students.add(student);
-        studentReadAndWrite.write(fileStudent,students);
+        studentReadAndWrite.write(fileStudent, students);
         System.out.println("Thêm sinh viên thành công !");
         show();
     }
@@ -264,26 +272,49 @@ public class ManagerStudent {
                 for (int i = 0; i < students.size(); i++) {
                     if (students.get(i).getId() == id) {
                         System.out.println("Sinh viên cần cập nhật: " + students.get(i));
-                        System.out.println("Nhập thông tin mới cho sinh viên:");
-                        System.out.println("--------------");
+                        System.out.println("Nhập tin mới cho sinh viên:");
+                        System.out.println("1.Tên");
+                        System.out.println("2.Ngày sinh");
+                        System.out.println("3.Địa chỉ");
+                        System.out.println("4.Chiều cao");
+                        System.out.println("5.Cân nặng");
+                        System.out.println("6.Trường");
+                        System.out.println("7.Năm bắt đầu đại học");
+                        System.out.println("8.Gpa");
+                        System.out.println("8.Hủy cập nhật");
+                        System.out.println("---------------------");
+                        System.out.println("Chọn thông tin bạn muốn cập nhật:");
 
-                        String name = inputName();
-                        LocalDate birthDate = inputBirthDate();
-                        String address = inputAddress();
-                        double height = inputHeight();
-                        double weight = inputWeight();
-                        String school = inputSchool();
-                        int collegeStartYear = inputStartYear();
-                        double gpa = inputGpa();
+                        int choice = studentValidate.inputChoice(1, 9);
+                        switch (choice) {
+                            case 1:
+                                String name = inputName();
+                                students.get(i).setName(name);
+                            case 2:
+                                LocalDate birthDate = inputBirthDate();
+                                students.get(i).setBirthDate(birthDate);
+                            case 3:
+                                String address = inputAddress();
+                                students.get(i).setAddress(address);
+                            case 4:
+                                double height = inputHeight();
+                                students.get(i).setHeight(height);
+                            case 5:
+                                double weight = inputWeight();
+                                students.get(i).setWeight(weight);
+                            case 6:
+                                String school = inputSchool();
+                                students.get(i).setSchool(school);
+                            case 7:
+                                int collegeStartYear = inputStartYear();
+                                students.get(i).setCollegeStartYear(collegeStartYear);
+                            case 8:
+                                double gpa = inputGpa();
+                                students.get(i).setGpa(gpa);
+                            case 9:
+                                return;
+                        }
 
-                        students.get(i).setName(name);
-                        students.get(i).setBirthDate(birthDate);
-                        students.get(i).setAddress(address);
-                        students.get(i).setHeight(height);
-                        students.get(i).setWeight(weight);
-                        students.get(i).setSchool(school);
-                        students.get(i).setCollegeStartYear(collegeStartYear);
-                        students.get(i).setGpa(gpa);
                         students.get(i).updateLevel();
 //                        System.out.println("Cập nhật thành công");
 //                        System.out.println("Thông tin sinh viên sau khi cập nhật: " + students.get(i));
@@ -363,20 +394,86 @@ public class ManagerStudent {
         }
     }
 
-    public void displayLevelSort(List<Student> students){
+    public void displayLevelSort(List<Student> students) {
         Map<Level, Integer> levelCounts = new HashMap<>();
         int allStudents = students.size();
 
         for (Student student : students) {
             Level level = student.getLevel();
-            levelCounts.put(level, levelCounts.getOrDefault(level,0) +1);
+            levelCounts.put(level, levelCounts.getOrDefault(level, 0) + 1);
         }
         System.out.println("Danh sách học lực của các sinh viên theo % từ cao xuống thấp: ");
-        List<Map.Entry<Level,Integer>> sortedLevel = new ArrayList<>(levelCounts.entrySet());
+        List<Map.Entry<Level, Integer>> sortedLevel = new ArrayList<>(levelCounts.entrySet());
         sortedLevel.sort(Collections.reverseOrder(Comparator.comparingDouble(entry -> (entry.getValue() * 100.0 / allStudents))));
-        for (Map.Entry<Level , Integer> level : sortedLevel) {
+        for (Map.Entry<Level, Integer> level : sortedLevel) {
             double percentage = level.getValue() * 100 / allStudents;
             System.out.println("- " + level.getKey().getLevelName() + ": " + String.format("%.2f%%", percentage));
+        }
+    }
+
+    public void showGpa(List<Student> students) {
+        Map<Double, Integer> gpaCounts = new HashMap<>();
+        int totalStudents = students.size();
+
+        for (Student student : students) {
+            double gpa = student.getGpa();
+            gpaCounts.put(gpa, gpaCounts.getOrDefault(gpa, 0) + 1);
+        }
+
+        System.out.println("GPA Statistics (% of total students):");
+        List<Map.Entry<Double, Integer>> sortedEntries = new ArrayList<>(gpaCounts.entrySet());
+        sortedEntries.sort(Comparator.comparingDouble(entry -> entry.getKey()));
+        for (Map.Entry<Double, Integer> entry : sortedEntries) {
+            double gpa = entry.getKey();
+            int count = entry.getValue();
+            double percentage = count * 100.0 / totalStudents;
+            System.out.println("- " + gpa + ": " + percentage + "%");
+        }
+    }
+
+    public void showStudentByLevel(List<Student> students) {
+        System.out.println("Enter academic level (1 = Kém, 2 = Yếu, 3 = Trung bình, 4 = Khá, 5 = Giỏi, 6 = Xuất sắc):");
+        Scanner scanner = new Scanner(System.in);
+        int inputLevel = scanner.nextInt();
+        Level selectedLevel = null;
+        switch (inputLevel) {
+            case 1:
+                selectedLevel = Level.POOR;
+                break;
+            case 2:
+                selectedLevel = Level.WEAK;
+                break;
+            case 3:
+                selectedLevel = Level.AVERAGE;
+                break;
+            case 4:
+                selectedLevel = Level.GOOD;
+                break;
+            case 5:
+                selectedLevel = Level.VERYGOOD;
+                break;
+            case 6:
+                selectedLevel = Level.EXCELLENT;
+                break;
+            default:
+                System.out.println("Sai định dạng");
+                return;
+        }
+
+        List<Student> filteredStudents = new ArrayList<>();
+        for (Student student : students) {
+            if (student.getLevel() == selectedLevel) {
+                filteredStudents.add(student);
+            }
+        }
+
+        if (filteredStudents.isEmpty()) {
+            System.out.println("Không thấy sinh viên có học lực " + selectedLevel.getLevelName());
+        } else {
+            System.out.println("Sinh viên có học lực " + selectedLevel.getLevelName() + ":");
+            for (Student student : filteredStudents) {
+                System.out.println("- " + student.getName() + " (ID: " + student.getId() + ")");
+            }
         }
     }
 }
