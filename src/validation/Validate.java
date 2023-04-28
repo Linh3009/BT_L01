@@ -4,12 +4,12 @@ import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Scanner;
 
-public class StudentValidate {
+public class Validate {
     Scanner scanner = new Scanner(System.in);
     public static final int MAX_NAME_LENGTH = 100;
     public static final int MAX_ADDRESS_LENGTH = 300;
-    public static final LocalDate Min_YEAR = LocalDate.of(1900, 1, 1);
-    public static final LocalDate MAX_YEAR = LocalDate.now().withDayOfYear(1).plusYears(1).minusDays(1);
+    public static final LocalDate MIN_YEAR = LocalDate.of(1900, 1, 1);
+    public static final LocalDate MAX_YEAR = LocalDate.now().plusDays(1);
     public static final double MIN_HEIGHT = 50;
     public static final double MAX_HEIGHT = 300;
     public static final double MIN_WEIGHT = 5;
@@ -31,7 +31,7 @@ public class StudentValidate {
     }
 
     public static boolean checkDate(LocalDate birthDate){
-        return birthDate.isAfter(Min_YEAR) && birthDate.isBefore(MAX_YEAR);
+        return birthDate.isAfter(MIN_YEAR) && birthDate.isBefore(MAX_YEAR);
     }
 
     public static boolean checkHeight(double height){

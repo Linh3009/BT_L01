@@ -4,21 +4,22 @@ import io.ReadAndWrite;
 import model.Level;
 import model.Person;
 import model.Student;
-import validation.StudentValidate;
+import validation.Validate;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
 public class ManagerStudent {
     Scanner scanner = new Scanner(System.in);
-    File fileStudent = new File("D:\\BT L0-1 ArrayList\\src\\file_txt\\fileStudent.txt");
-    ReadAndWrite<Student> studentReadAndWrite = new ReadAndWrite<>();
-    ArrayList<Student> students = studentReadAndWrite.read(fileStudent);
-    StudentValidate studentValidate = new StudentValidate();
+    public File fileStudent = new File("src\\file_txt\\fileStudent.txt");
+    public ReadAndWrite<Student> studentReadAndWrite = new ReadAndWrite<>();
+    ArrayList<Student> students;
+    Validate validate = new Validate();
 
     public ManagerStudent() {
         if (!fileStudent.exists()) {
@@ -28,7 +29,7 @@ public class ManagerStudent {
                 System.err.println("Không thể tạo tệp: " + e.getMessage());
             }
         }
-        int idCount = Person.loadIdCount("D:/BT L0-1 ArrayList/src/file_txt/idCount.txt");
+        int idCount = Person.loadIdCount("src/file_txt/idCount.txt");
         Person.idCount = idCount;
         students = studentReadAndWrite.read(fileStudent);
     }
@@ -41,8 +42,6 @@ public class ManagerStudent {
             System.out.println("Danh sách trống. Cần thêm mới!!!");
             System.out.println();
         } else {
-//            for (int i = 0; i < students.size(); i++) {
-//                System.out.println(students.get(i));
             for (Student student : students) {
                 System.out.println(student);
                 counter = students.size();
@@ -56,8 +55,8 @@ public class ManagerStudent {
     public String inputName() {
         System.out.println("Nhập tên sinh viên: ");
         String name = scanner.nextLine();
-        if (!StudentValidate.checkName(name)) {
-            System.err.println("Tên không được trống và < " + StudentValidate.MAX_NAME_LENGTH + " ký tự");
+        if (!Validate.checkName(name)) {
+            System.err.println("Tên không được trống và < " + Validate.MAX_NAME_LENGTH + " ký tự");
             return inputName();
         }
         return name;
@@ -65,12 +64,13 @@ public class ManagerStudent {
 
     public LocalDate inputBirthDate() {
         System.out.println("Nhập ngày sinh (theo định dạng dd/mm/yyyy): ");
-        LocalDate birthDate = null;
         boolean flag = true;
+        LocalDate birthDate = null;
+
         while (flag) {
             try {
                 birthDate = LocalDate.parse(scanner.nextLine(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-                if (!StudentValidate.checkDate(birthDate)) {
+                if (!Validate.checkDate(birthDate)) {
                     System.err.println("Ngày sinh không hợp lệ! Hãy nhập lại.");
                 } else {
                     flag = false;
@@ -79,9 +79,9 @@ public class ManagerStudent {
                 System.err.println("Định dạng ngày không đúng! Hãy nhập lại.");
             }
         }
+
         return birthDate;
     }
-
 
     public String inputAddress() {
         System.out.println("Nhập địa chỉ: ");
@@ -89,8 +89,8 @@ public class ManagerStudent {
         String address = "";
         while (flag) {
             address = scanner.nextLine();
-            if (!StudentValidate.checkAddress(address)) {
-                System.err.println("Địa chỉ không được trống và < " + StudentValidate.MAX_ADDRESS_LENGTH + " ký tự");
+            if (!Validate.checkAddress(address)) {
+                System.err.println("Địa chỉ không được trống và < " + Validate.MAX_ADDRESS_LENGTH + " ký tự");
             } else {
                 flag = false;
             }
@@ -105,10 +105,10 @@ public class ManagerStudent {
         while (!flag) {
             try {
                 height = Double.parseDouble(scanner.nextLine());
-                if (StudentValidate.checkHeight(height)) {
+                if (Validate.checkHeight(height)) {
                     flag = true;
                 } else {
-                    System.err.println("Chiều cao không hợp lệ! Phải trong khoảng từ " + StudentValidate.MIN_HEIGHT + " đến " + StudentValidate.MAX_HEIGHT + " cm.");
+                    System.err.println("Chiều cao không hợp lệ! Phải trong khoảng từ " + Validate.MIN_HEIGHT + " đến " + Validate.MAX_HEIGHT + " cm.");
                 }
             } catch (NumberFormatException e) {
                 System.err.println("Phải là số và không được rỗng! Mời nhập lại");
@@ -124,10 +124,10 @@ public class ManagerStudent {
         while (!flag) {
             try {
                 weight = Double.parseDouble(scanner.nextLine());
-                if (StudentValidate.checkWeight(weight)) {
+                if (Validate.checkWeight(weight)) {
                     flag = true;
                 } else {
-                    System.err.println("Cân nặng không hợp lệ! Phải trongg khoảng từ " + StudentValidate.MIN_WEIGHT + " đến " + StudentValidate.MAX_WEIGHT + " kg.");
+                    System.err.println("Cân nặng không hợp lệ! Phải trongg khoảng từ " + Validate.MIN_WEIGHT + " đến " + Validate.MAX_WEIGHT + " kg.");
                 }
             } catch (NumberFormatException e) {
                 System.err.println("Phải là số và không được rỗng! Mời nhập lại");
@@ -140,18 +140,19 @@ public class ManagerStudent {
         String keyword = "OCT";
         int randomNumber = new Random().nextInt(1000000);
         String studentId = keyword + String.format("%07d", randomNumber);
-        String studentId1 = null;
-        for (int i = 0; i < students.size(); i++) {
-            if (students.get(i).getStudentId().equals(studentId)) {
-                return randomStudentId();
-            } else if (StudentValidate.checkStudentId(studentId)) {
-                studentId1 = studentId;
-            } else {
+        for (Student student : students) {
+            String currentStudentId = student.getStudentId();
+            if (currentStudentId != null && currentStudentId.equals(studentId)) {
                 return randomStudentId();
             }
         }
-        return studentId1;
+        if (Validate.checkStudentId(studentId)) {
+            return studentId;
+        } else {
+            return randomStudentId();
+        }
     }
+
 
     public String inputSchool() {
         System.out.println("Nhập tên trường: ");
@@ -159,10 +160,10 @@ public class ManagerStudent {
         String school = "";
         while (!flag) {
             school = scanner.nextLine();
-            if (StudentValidate.checkSchool(school)) {
+            if (Validate.checkSchool(school)) {
                 flag = true;
             } else {
-                System.err.println("Trường học không được trống và < " + StudentValidate.MAX_SCHOOL_LENGTH + " ký tự");
+                System.err.println("Trường học không được trống và < " + Validate.MAX_SCHOOL_LENGTH + " ký tự");
             }
         }
         return school;
@@ -175,7 +176,7 @@ public class ManagerStudent {
         while (!flag) {
             try {
                 startYear = Integer.parseInt(scanner.nextLine());
-                if (StudentValidate.checkStartYear(startYear)) {
+                if (Validate.checkStartYear(startYear)) {
                     flag = true;
                 } else {
                     System.err.println("Năm nhập học phải có 4 số, >1900 và không được nhỏ hơn năm hiện tại");
@@ -194,10 +195,10 @@ public class ManagerStudent {
         while (!flag) {
             try {
                 gpa = Double.parseDouble(scanner.nextLine());
-                if (StudentValidate.checkGpa(gpa)) {
+                if (Validate.checkGpa(gpa)) {
                     flag = true;
                 } else {
-                    System.err.println("Điểm không hợp lệ! Phải trong khoảng từ " + StudentValidate.MIN_GPA + " đến " + StudentValidate.MAX_GPA);
+                    System.err.println("Điểm không hợp lệ! Phải trong khoảng từ " + Validate.MIN_GPA + " đến " + Validate.MAX_GPA);
                 }
             } catch (NumberFormatException e) {
                 System.err.println("Sai định dạng! Mời nhập lại");
@@ -224,8 +225,7 @@ public class ManagerStudent {
     public void addStudent() {
         Student student = inputInfo();
         Person.idCount++;
-        Person.saveIdCount(Person.idCount, "D:/BT L0-1 ArrayList/src/file_txt/idCount.txt");
-        student.updateLevel();
+        Person.saveIdCount(Person.idCount, "src/file_txt/idCount.txt");
         students.add(student);
         studentReadAndWrite.write(fileStudent, students);
         System.out.println("Thêm sinh viên thành công !");
@@ -263,7 +263,7 @@ public class ManagerStudent {
             return;
         }
         System.out.println("Nhập id sinh viên bạn muốn cập nhật: ");
-        int id = 0;
+        int id;
         boolean flag = false;
         while (!flag) {
             try {
@@ -281,43 +281,47 @@ public class ManagerStudent {
                         System.out.println("6.Trường");
                         System.out.println("7.Năm bắt đầu đại học");
                         System.out.println("8.Gpa");
-                        System.out.println("8.Hủy cập nhật");
+                        System.out.println("9.Hủy cập nhật");
                         System.out.println("---------------------");
                         System.out.println("Chọn thông tin bạn muốn cập nhật:");
 
-                        int choice = studentValidate.inputChoice(1, 9);
+                        int choice = validate.inputChoice(1, 9);
                         switch (choice) {
                             case 1:
                                 String name = inputName();
                                 students.get(i).setName(name);
+                                break;
                             case 2:
                                 LocalDate birthDate = inputBirthDate();
                                 students.get(i).setBirthDate(birthDate);
+                                break;
                             case 3:
                                 String address = inputAddress();
                                 students.get(i).setAddress(address);
+                                break;
                             case 4:
                                 double height = inputHeight();
                                 students.get(i).setHeight(height);
+                                break;
                             case 5:
                                 double weight = inputWeight();
                                 students.get(i).setWeight(weight);
+                                break;
                             case 6:
                                 String school = inputSchool();
                                 students.get(i).setSchool(school);
+                                break;
                             case 7:
                                 int collegeStartYear = inputStartYear();
                                 students.get(i).setCollegeStartYear(collegeStartYear);
+                                break;
                             case 8:
                                 double gpa = inputGpa();
                                 students.get(i).setGpa(gpa);
+                                break;
                             case 9:
                                 return;
                         }
-
-                        students.get(i).updateLevel();
-//                        System.out.println("Cập nhật thành công");
-//                        System.out.println("Thông tin sinh viên sau khi cập nhật: " + students.get(i));
                         index = i;
                         break;
                     }
@@ -346,7 +350,7 @@ public class ManagerStudent {
             System.out.println();
             return;
         }
-        int idCount = Person.loadIdCount("D:/BT L0-1 ArrayList/src/file_txt/idCount.txt");
+        int idCount = Person.loadIdCount("src/file_txt/idCount.txt");
         int deletedCount = 0;
         while (deletedCount < students.size()) {
             System.out.println("Nhập mã sinh viên bạn muốn xóa (Nhập 0 để quay lại danh sách)");
@@ -370,7 +374,7 @@ public class ManagerStudent {
                                     students.get(j).setId(students.get(j).getId() - 1);
                                 }
                                 idCount--;
-                                Person.saveIdCount(idCount, "D:/BT L0-1 ArrayList/src/file_txt/idCount.txt");
+                                Person.saveIdCount(idCount, "src/file_txt/idCount.txt");
                                 studentReadAndWrite.write(fileStudent, students);
                                 System.out.println("Xóa sinh viên thành công");
                                 deletedCount++;
@@ -394,7 +398,7 @@ public class ManagerStudent {
         }
     }
 
-    public void displayLevelSort(List<Student> students) {
+    public void displayLevelSort() {
         Map<Level, Integer> levelCounts = new HashMap<>();
         int allStudents = students.size();
 
@@ -411,7 +415,7 @@ public class ManagerStudent {
         }
     }
 
-    public void showGpa(List<Student> students) {
+    public void showGpa() {
         Map<Double, Integer> gpaCounts = new HashMap<>();
         int totalStudents = students.size();
 
@@ -420,9 +424,9 @@ public class ManagerStudent {
             gpaCounts.put(gpa, gpaCounts.getOrDefault(gpa, 0) + 1);
         }
 
-        System.out.println("GPA Statistics (% of total students):");
+        System.out.println("Thống kê GPA (% trên tổng số sinh viên):");
         List<Map.Entry<Double, Integer>> sortedEntries = new ArrayList<>(gpaCounts.entrySet());
-        sortedEntries.sort(Comparator.comparingDouble(entry -> entry.getKey()));
+        sortedEntries.sort(Comparator.comparingDouble(Map.Entry::getKey));
         for (Map.Entry<Double, Integer> entry : sortedEntries) {
             double gpa = entry.getKey();
             int count = entry.getValue();
@@ -431,48 +435,50 @@ public class ManagerStudent {
         }
     }
 
-    public void showStudentByLevel(List<Student> students) {
-        System.out.println("Enter academic level (1 = Kém, 2 = Yếu, 3 = Trung bình, 4 = Khá, 5 = Giỏi, 6 = Xuất sắc):");
-        Scanner scanner = new Scanner(System.in);
-        int inputLevel = scanner.nextInt();
-        Level selectedLevel = null;
-        switch (inputLevel) {
-            case 1:
-                selectedLevel = Level.POOR;
-                break;
-            case 2:
-                selectedLevel = Level.WEAK;
-                break;
-            case 3:
-                selectedLevel = Level.AVERAGE;
-                break;
-            case 4:
-                selectedLevel = Level.GOOD;
-                break;
-            case 5:
-                selectedLevel = Level.VERYGOOD;
-                break;
-            case 6:
-                selectedLevel = Level.EXCELLENT;
-                break;
-            default:
-                System.out.println("Sai định dạng");
-                return;
-        }
-
-        List<Student> filteredStudents = new ArrayList<>();
-        for (Student student : students) {
-            if (student.getLevel() == selectedLevel) {
-                filteredStudents.add(student);
+    public void showStudentByLevel() {
+        while (true) {
+            System.out.println("Nhập học lực (1 = Kém, 2 = Yếu, 3 = Trung bình, 4 = Khá, 5 = Giỏi, 6 = Xuất sắc, 7 = Thoát):");
+            int inputLevel = validate.inputChoice(1, 7);
+            Level selectedLevel = null;
+            switch (inputLevel) {
+                case 1:
+                    selectedLevel = Level.POOR;
+                    break;
+                case 2:
+                    selectedLevel = Level.WEAK;
+                    break;
+                case 3:
+                    selectedLevel = Level.AVERAGE;
+                    break;
+                case 4:
+                    selectedLevel = Level.GOOD;
+                    break;
+                case 5:
+                    selectedLevel = Level.VERYGOOD;
+                    break;
+                case 6:
+                    selectedLevel = Level.EXCELLENT;
+                    break;
+                case 7:
+                    return;
             }
-        }
 
-        if (filteredStudents.isEmpty()) {
-            System.out.println("Không thấy sinh viên có học lực " + selectedLevel.getLevelName());
-        } else {
-            System.out.println("Sinh viên có học lực " + selectedLevel.getLevelName() + ":");
-            for (Student student : filteredStudents) {
-                System.out.println("- " + student.getName() + " (ID: " + student.getId() + ")");
+            List<Student> filteredStudents = new ArrayList<>();
+            for (Student student : students) {
+                if (student.getLevel() == selectedLevel) {
+                    filteredStudents.add(student);
+                }
+            }
+
+            if (filteredStudents.isEmpty()) {
+                System.out.println("Không thấy sinh viên có học lực " + selectedLevel.getLevelName());
+                System.out.println("--------------------------------");
+            } else {
+                System.out.println("Sinh viên có học lực " + selectedLevel.getLevelName() + ":");
+                for (Student student : filteredStudents) {
+                    System.out.println("- " + student.getName() + " (ID: " + student.getId() + ")");
+                }
+                System.out.println("--------------------------------");
             }
         }
     }

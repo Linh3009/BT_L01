@@ -1,27 +1,30 @@
 package model;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.time.LocalDate;
 
 public class Student extends Person implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 123456789L;
     private String studentId;
     private String school;
-    private int collegeStartYear;
-    private double gpa;
+    private Integer collegeStartYear;
+    private Double gpa;
     private Level level;
 
-    public Student( String name, LocalDate birthDate, String address, double height, double weight, String studentId, String school, int collegeStartYear, double gpa) {
+    public Student() {
+    }
+
+    public Student(String name, LocalDate birthDate, String address, Double height, Double weight, String studentId, String school, Integer collegeStartYear, Double gpa) {
         super(name, birthDate, address, height, weight);
         this.studentId = studentId;
         this.school = school;
         this.collegeStartYear = collegeStartYear;
         this.gpa = gpa;
-        updateLevel();
+        levelAcademic();
     }
 
+    @Serial
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         out.writeInt(super.getId());
@@ -32,6 +35,7 @@ public class Student extends Person implements Serializable {
         out.writeDouble(super.getWeight());
     }
 
+    @Serial
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         super.setId(in.readInt());
@@ -58,7 +62,7 @@ public class Student extends Person implements Serializable {
         this.school = school;
     }
 
-    public int getCollegeStartYear() {
+    public Integer getCollegeStartYear() {
         return collegeStartYear;
     }
 
@@ -66,12 +70,13 @@ public class Student extends Person implements Serializable {
         this.collegeStartYear = collegeStartYear;
     }
 
-    public double getGpa() {
+    public Double getGpa() {
         return gpa;
     }
 
     public void setGpa(double gpa) {
         this.gpa = gpa;
+        levelAcademic();
     }
 
     public Level getLevel() {
@@ -82,7 +87,7 @@ public class Student extends Person implements Serializable {
         this.level = level;
     }
 
-    public void updateLevel(){
+    public void levelAcademic(){
         if (gpa < 3){
             level = Level.POOR;
         } else if (gpa < 5) {

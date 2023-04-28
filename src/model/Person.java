@@ -5,15 +5,15 @@ import java.time.LocalDate;
 
 public class Person {
     public static int idCount = 1;
-    private int id;
+    private Integer id;
     private String name;
     private LocalDate birthDate;
     private String address;
-    private double height;
-    private double weight;
+    private Double height;
+    private Double weight;
     public Person() {
     }
-    public Person(String name, LocalDate birthDate, String address, double height, double weight) {
+    public Person(String name, LocalDate birthDate, String address, Double height, Double weight) {
         this.id = idCount;
         this.name = name;
         this.birthDate = birthDate;
@@ -22,7 +22,7 @@ public class Person {
         this.weight = weight;
     }
 
-    public static void saveIdCount(int idCount, String filePath) {
+    public static void saveIdCount(Integer idCount, String filePath) {
         try {
             FileOutputStream fileOut = new FileOutputStream(filePath);
             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
@@ -48,7 +48,7 @@ public class Person {
     }
 
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -80,7 +80,7 @@ public class Person {
         this.address = address;
     }
 
-    public double getHeight() {
+    public Double getHeight() {
         return height;
     }
 
@@ -88,7 +88,7 @@ public class Person {
         this.height = height;
     }
 
-    public double getWeight() {
+    public Double getWeight() {
         return weight;
     }
 
